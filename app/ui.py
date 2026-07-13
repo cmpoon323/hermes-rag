@@ -1,8 +1,10 @@
 """Streamlit UI: upload + chat + document list."""
+import os
 import streamlit as st
 import httpx
 
-API_URL = st.secrets.get("API_URL", "http://localhost:8000") if hasattr(st, "secrets") else "http://localhost:8000"
+# Ponytail: prefer env API_URL (Zeabur), then st.secrets, then localhost
+API_URL = os.getenv("API_URL") or st.secrets.get("API_URL", "http://localhost:8000") if hasattr(st, "secrets") else os.getenv("API_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="Hermes RAG", page_icon="📚", layout="wide")
 st.title("📚 Hermes RAG — 文件問答")
