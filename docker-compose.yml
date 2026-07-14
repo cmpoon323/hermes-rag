@@ -8,17 +8,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data/uploads:/app/data/uploads
-      - ./data/qdrant:/app/data/qdrant
-    depends_on:
-      - qdrant
-
-  qdrant:
-    image: qdrant/qdrant:v1.7.4
-    ports:
-      - "6333:6333"
-    volumes:
-      - qdrant_data:/qdrant/storage
+      - ./data:/app/data
 
   ui:
     build: .
@@ -27,8 +17,7 @@ services:
       - "8501:8501"
     env_file:
       - .env
+    environment:
+      - API_URL=http://api:8000
     depends_on:
       - api
-
-volumes:
-  qdrant_data:
