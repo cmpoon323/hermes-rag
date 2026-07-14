@@ -20,8 +20,7 @@ Context:
 async def answer(question: str, top_k: int = TOP_K) -> dict:
     """Embed question, retrieve, ask LLM."""
     minimax = get_minimax()
-    q_vectors = await minimax.embed([question])
-    q_vec = q_vectors[0]
+    q_vec = await minimax.embed_query(question)
 
     hits = vector_store.search(q_vec, top_k=top_k)
 
