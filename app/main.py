@@ -35,12 +35,10 @@ async def upload(file: UploadFile = File(...)):
     if ext not in (".pdf", ".docx", ".doc"):
         raise HTTPException(400, f"Unsupported file type: {ext}")
 
-    # Save to disk
     dest = UPLOAD_DIR / file.filename
     content = await file.read()
     dest.write_bytes(content)
 
-    # Ingest
     result = await ingest_file(dest)
     return result
 
@@ -59,13 +57,11 @@ async def ask(req: AskRequest):
 @app.get("/documents")
 async def documents():
     """List all ingested documents + chunk counts."""
-    qdrant = vector_store.get_client()
-    return {"documents": vector_store.list_sources(qdrant)}
+    return {"documents": vector_store.list_sources()}
 
 
 @app.delete("/documents/{source:path}")
 async def delete_document(source: str):
     """Delete all chunks from a document."""
-    qdrant = vector_store.get_client()
-    vector_store.delete_by_source(qdrant, source)
+    vector_store.delete_by_source(source)
     return {"deleted": source}
