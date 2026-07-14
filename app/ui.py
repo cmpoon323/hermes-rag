@@ -3,8 +3,8 @@ import os
 import streamlit as st
 import httpx
 
-# Ponytail: prefer env API_URL (Zeabur), then st.secrets, then localhost
-API_URL = os.getenv("API_URL") or st.secrets.get("API_URL", "http://localhost:8000") if hasattr(st, "secrets") else os.getenv("API_URL", "http://localhost:8000")
+# Ponytail: prefer env API_URL (Zeabur), then localhost
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="Hermes RAG", page_icon="📚", layout="wide")
 st.title("📚 Hermes RAG — 文件問答")
@@ -30,7 +30,7 @@ with st.sidebar:
     st.divider()
     st.header("📂 文件庫")
     if st.button("Refresh"):
-        st.session_state.refresh_docs = True
+        st.rerun()
     try:
         r = httpx.get(f"{API_URL}/documents", timeout=10)
         if r.status_code == 200:
