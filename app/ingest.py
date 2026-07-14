@@ -1,4 +1,4 @@
-"""Ingestion pipeline: file → parse → chunk → embed → Qdrant."""
+"""Ingestion pipeline: file → parse → chunk → embed → SQLite."""
 from pathlib import Path
 from .parsers import parse
 from .chunker import chunk_text
@@ -16,14 +16,12 @@ async def ingest_file(path: Path) -> dict:
     if not chunks:
         return {"source": path.name, "chunks": 0, "error": "no chunks produced"}
 
-    # Embed in batch (MiniMax supports batch)
+    # Embed in batch
     minimax = get_minimax()
     vectors = await minimax.embed([c["text"] for c in chunks])
 
     # Store
-    qdrant = vector_store.get_client()
-    vector_store.ensure_collection(qdrant, vector_size=len(vectors[0]))
-    vector_store.upsert_chunks(qdrant, chunks, vectors)
+    vector_store.upsert_chunks(chunks, vectors)
 
     return {
         "source": path.name,
