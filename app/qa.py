@@ -20,14 +20,10 @@ Context:
 async def answer(question: str, top_k: int = TOP_K) -> dict:
     """Embed question, retrieve, ask LLM."""
     minimax = get_minimax()
-    qdrant = vector_store.get_client()
-
-    # 1. Embed question
     q_vectors = await minimax.embed([question])
     q_vec = q_vectors[0]
 
-    # 2. Retrieve
-    hits = vector_store.search(qdrant, q_vec, top_k=top_k)
+    hits = vector_store.search(q_vec, top_k=top_k)
 
     if not hits:
         return {
@@ -35,7 +31,6 @@ async def answer(question: str, top_k: int = TOP_K) -> dict:
             "sources": [],
         }
 
-    # 3. Build context
     context_parts = []
     for i, h in enumerate(hits, 1):
         src = h.get("source", "unknown")
@@ -45,7 +40,6 @@ async def answer(question: str, top_k: int = TOP_K) -> dict:
 
     context = "\n\n".join(context_parts)
 
-    # 4. Ask LLM
     answer_text = await minimax.chat([
         {"role": "system", "content": SYSTEM_PROMPT.format(context=context)},
         {"role": "user", "content": question},
